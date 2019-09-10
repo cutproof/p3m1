@@ -1,6 +1,12 @@
 package com.ilinksolutions.p3m1.rservices;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,5 +110,43 @@ public class P3MIRestController
         {
             return ResponseEntity.ok(returnValue);
         }
+    }
+    
+    @GetMapping("/getservice/{id}")
+	public void getService(@PathVariable String id)
+    {
+    	logger.info("P3MIRestController: getService: Begin!");
+    	logger.info("P3MIRestController: getService: Path Variable: " + id);
+    	try
+    	{
+    		URL url = new URL("http://ilinkp3-ilinkp3.b9ad.pro-us-east-1.openshiftapps.com/p2/serviceCheck");
+    		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    		conn.setRequestMethod("GET");
+    		conn.setRequestProperty("Accept", "application/json");
+
+    		if (conn.getResponseCode() != 200)
+    		{
+    			throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+    		}
+
+    		BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+
+    		String output;
+    		logger.info("Output from Server .... \n");
+    		while ((output = br.readLine()) != null)
+    		{
+    			logger.info(output);
+    		}
+    		conn.disconnect();
+    	}
+    	catch (MalformedURLException e)
+    	{
+    		e.printStackTrace();
+    	}
+    	catch (IOException e)
+    	{
+    		e.printStackTrace();
+    	}
+    	//	ResponseEntity.ok(1);
     }
 }
