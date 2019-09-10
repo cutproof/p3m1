@@ -36,7 +36,7 @@ public class P3MIRestController
 	{
 		logger.info("P3MIRestController: fileMessage: Begin!");
 		logger.info("P3MIRestController: fileMessage: JSON: " + json.toString());
-		logger.info("P3MIRestController: fileMessage: End.");
+		logger.info("P3MIRestController: fileMessage: End!");
 		UKVisaService service = new UKVisaService();
 		UKVisaMessage returnValue = service.getEntry(new Integer(1).intValue());
         if (returnValue == null)
