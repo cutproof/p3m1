@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ilinksolutions.p3m1.domains.UKVisaMessage;
+import com.ilinksolutions.p3m1.utils.AES256Manager;
+import com.ilinksolutions.p3m1.utils.EmailManager;
 import com.ilinksolutions.p3m1.bservices.UKVisaService;
 
 import org.springframework.http.HttpHeaders;
@@ -111,42 +113,32 @@ public class P3MIRestController
             return ResponseEntity.ok(returnValue);
         }
     }
-    
-    @GetMapping("/getservice/{id}")
-	public void getService(@PathVariable String id)
+
+    @PostMapping("/sendEmail")
+    public ResponseEntity<Integer> sendEmail(@RequestBody UKVisaMessage message)
     {
     	logger.info("P3MIRestController: getService: Begin!");
-    	logger.info("P3MIRestController: getService: Path Variable: " + id);
+    	logger.info("P3MIRestController: getService: Path Variable: " + message.toString());
+    	Integer returnValue = new Integer(0);
+    	String text = "Dear " + message.getFirstName() + " " + message.getLastName() + 
+				", \n\n Your application has been submitted based on your a request filed on your behalf.";
+		String subject = "Re: UK VISA Application: Submission Added.";
     	try
     	{
-    		URL url = new URL("http://ilinkp3-ilinkp3.b9ad.pro-us-east-1.openshiftapps.com/p2/serviceCheck");
-    		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-    		conn.setRequestMethod("GET");
-    		conn.setRequestProperty("Accept", "application/json");
-
-    		if (conn.getResponseCode() != 200)
-    		{
-    			throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
-    		}
-
-    		BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-
-    		String output;
-    		logger.info("Output from Server .... \n");
-    		while ((output = br.readLine()) != null)
-    		{
-    			logger.info(output);
-    		}
-    		conn.disconnect();
+    		String messageString = "{\"id\": " + message.getId() + "," +
+					"\"firstName\": \"" + message.getFirstName() + "\"," +
+					"\"lastName\": \"" + message.getLastName() + "\"," +
+					"\"contactNo\": \"" + message.getContactNo() + "\"," +
+					"\"email\": \"" + message.getEmail() + "\"}";
+			String encryptedString = AES256Manager.encryptMessage(messageString);
+			EmailManager eMail = new EmailManager(subject, text);
+			eMail.send(encryptedString);
+			returnValue = new Integer(1);
     	}
-    	catch (MalformedURLException e)
+    	catch (Exception e)
     	{
     		e.printStackTrace();
     	}
-    	catch (IOException e)
-    	{
-    		e.printStackTrace();
-    	}
-    	//	ResponseEntity.ok(1);
+    	return ResponseEntity.ok(returnValue);
     }
 }
