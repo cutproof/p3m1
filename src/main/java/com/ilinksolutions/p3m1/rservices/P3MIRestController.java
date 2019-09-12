@@ -100,7 +100,8 @@ public class P3MIRestController {
 	}
 
 	@PostMapping("/sendEmail")
-	public ResponseEntity<Integer> sendEmail(@RequestBody UKVisaMessage message) {
+	public ResponseEntity<Integer> sendEmail(@RequestBody UKVisaMessage message)
+	{
 		logger.info("P3MIRestController: getService: Begin!");
 		logger.info("P3MIRestController: getService: Path Variable: " + message.toString());
 		Integer returnValue = new Integer(0);
@@ -119,52 +120,5 @@ public class P3MIRestController {
 			e.printStackTrace();
 		}
 		return ResponseEntity.ok(returnValue);
-	}
-
-	public UKVisaMessage sendEmailClient(UKVisaMessage message)
-	{
-		String text = "Dear " + message.getFirstName() + " " + message.getLastName() + 
-				", \n\n Your application has been submitted based on your a request filed on your behalf.";
-		String subject = "Re: UK VISA Application: Submission Added.";
-
-		try
-		{
-			UKVisaMessage returnValue = dao.save(message);
-			String messageString = "{\"id\": " + message.getId() + "," +
-					"\"firstName\": \"" + message.getFirstName() + "\"," +
-					"\"lastName\": \"" + message.getLastName() + "\"," +
-					"\"contactNo\": \"" + message.getContactNo() + "\"," +
-					"\"email\": \"" + message.getEmail() + "\"}";
-			URL url = new URL("http://ilinkp2v17-ilinkp2v17.b9ad.pro-us-east-1.openshiftapps.com/p3m1/sendEmail");
-			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
-			httpConnection.setDoOutput(true);
-			httpConnection.setRequestMethod("POST");
-			httpConnection.setRequestProperty("Content-Type", "application/json");
-			OutputStream oStream = httpConnection.getOutputStream();
-			oStream.write(messageString.getBytes());
-			oStream.flush();
-
-			if (httpConnection.getResponseCode() != HttpURLConnection.HTTP_CREATED)
-			{
-				throw new RuntimeException("Unsuccessful: Error Code: " + httpConnection.getResponseCode());
-			}
-
-			BufferedReader br = new BufferedReader(new InputStreamReader((httpConnection.getInputStream())));
-
-			String output;
-			while ((output = br.readLine()) != null)
-			{
-				logger.info("Output from REST service API: " + output);
-			}
-			httpConnection.disconnect();
-		}
-		catch (MalformedURLException e)
-		{
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
 	}
 }
