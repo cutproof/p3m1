@@ -28,7 +28,7 @@ public class P2ApplicationMokitoTests
 	}
 
 	@Test
-	public void getEmployeeById() throws Exception
+	public void getVisaApplicationById() throws Exception
 	{
 		mvc.perform(MockMvcRequestBuilders.get("/getmsg/{id}", 1).accept(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.status().isOk())
@@ -36,7 +36,7 @@ public class P2ApplicationMokitoTests
 	}
 
 	@Test
-	public void createEmployeeAPI() throws Exception
+	public void createVisaApplication() throws Exception
 	{
 		mvc.perform(MockMvcRequestBuilders.post("/savemsg")
 				.content(asJsonString(new UKVisaMessage(100, "Harjeet", "Parmar", "202-277-0788", "harjeet.parmar@ilinksolutions.com")))
